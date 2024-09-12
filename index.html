@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy Birthday, Sara!</title>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet"> <!-- Fancy cursive font -->
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      height: 100%;
+      touch-action: none;
+      background:#111; /* Light pink background */
+      background-image: url('https://example.com/confetti.png'); /* Replace with confetti image URL */
+      color: #333; /* Dark text for better readability */
+      overflow: hidden;
+    }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 1000px;
+      transform-style: preserve-3d;
+      font-family: 'Great Vibes', cursive; /* Using custom Google Font */
+    }
+    
+    /* Decorations on the sides */
+    #left-decor, #right-decor {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 150px;
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    #left-decor {
+      left: 0;
+    }
+    #right-decor {
+      right: 0;
+    }
+    .decor-img {
+      width: 80px;
+      margin: 15px;
+      animation: bounce 2s infinite;
+    }
+
+    /* Bounce animation for decorations */
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    /* Glowing and bold effect for the Birthday message */
+    #spin-container p {
+      font-size: 50px;
+      font-weight: bold;
+      color: #fff;
+      position: absolute;
+      top: -120px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-shadow: 0 0 10px #fff, 0 0 20px #f39c12, 0 0 30px #f39c12, 0 0 40px #f39c12;
+      animation: glow 1.5s infinite alternate;
+    }
+
+    @keyframes glow {
+      0% {
+        text-shadow: 0 0 10px #fff, 0 0 20px #f39c12, 0 0 30px #f39c12, 0 0 40px #f39c12;
+      }
+      100% {
+        text-shadow: 0 0 20px #fff, 0 0 30px #ff9f43, 0 0 40px #f39c12, 0 0 50px #e74c3c;
+      }
+    }
+
+    #drag-container, #spin-container {
+      position: relative;
+      display: flex;
+      margin: auto;
+      transform-style: preserve-3d;
+      transform: rotateX(-10deg);
+    }
+
+    #spin-container img, #spin-container video {
+      transform-style: preserve-3d;
+      position: absolute;
+      width: 120px; /* Keep the original size */
+      height: 170px;
+      box-shadow: 0 0 8px #fff;
+      box-reflect: below 10px linear-gradient(transparent, transparent, #0005);
+    }
+
+    #spin-container img:hover, #spin-container video:hover {
+      box-shadow: 0 0 15px #fffd;
+      box-reflect: below 10px linear-gradient(transparent, transparent, #0007);
+    }
+
+    #ground {
+      width: 900px;
+      height: 900px;
+      position: absolute;
+      transform: translate(-50%,-50%) rotateX(90deg);
+      background: radial-gradient(center center, farthest-side , #9993, transparent);
+    }
+
+    #music-container {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 10px;
+      padding: 5px 10px;
+    }
+
+    @keyframes spin {
+      from { transform: rotateY(0deg); }
+      to { transform: rotateY(360deg); }
+    }
+
+    @keyframes spinRevert {
+      from { transform: rotateY(360deg); }
+      to { transform: rotateY(0deg); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Decorations on both sides -->
+  <div id="left-decor">
+    <img src="ballon.png" class="decor-img" alt="Balloon"> <!-- Add image URLs -->
+    <img src="flower.jpg" class="decor-img" alt="Flower">
+    <img src="cake.png" class="decor-img" alt="Cake">
+  </div>
+  
+  <div id="drag-container">
+    <div id="spin-container">
+      <!-- Keep old images -->
+      <img src="image1.jpg" alt="Old Image 1">
+      <img src="image2.jpg" alt="Old Image 2">
+      <img src="image3.jpg" alt="Old Image 3">
+      <img src="image4.jpg" alt="Old Image 4">
+      <img src="image5.jpg" alt="Old Image 5">
+      <img src="image6.jpg" alt="Old Image 6">
+      <img src="image7.jpg" alt="Old Image 7">
+      <!-- Birthday message -->
+      <p>Happy Birthday Sara!</p>
+      
+    </div>
+    <div id="ground"></div>
+  </div>
+
+  <div id="right-decor">
+    <img src="ballon.png" class="decor-img" alt="Balloon"> <!-- Add image URLs -->
+    <img src="flower.jpg" class="decor-img" alt="Flower">
+    <img src="cc.png" class="decor-img" alt="Confetti">
+  </div>
+  
+  <div id="music-container"></div>
+
+  <script>
+    var radius = 240; // Radius of the carousel
+    var autoRotate = true; // Auto-rotate on or off
+    var rotateSpeed = -60; // Rotation speed (seconds/360 degrees)
+    var imgWidth = 120; // Image width (in px)
+    var imgHeight = 170; // Image height (in px)
+
+    // Link to background music (set to null if not needed)
+    var bgMusicURL = 'https://api.soundcloud.com/tracks/143041228/stream?client_id=587aa2d384f7333a886010d5f52f302a';
+    var bgMusicControls = true; // Show music controls (true/false)
+
+    // Delay the animation start by 1 second
+    setTimeout(init, 1000);
+
+    var odrag = document.getElementById('drag-container');
+    var ospin = document.getElementById('spin-container');
+    var aImg = ospin.getElementsByTagName('img');
+    var aVid = ospin.getElementsByTagName('video');
+    var aEle = [...aImg, ...aVid]; // Combine images and videos
+
+    // Set the size of images and videos
+    ospin.style.width = imgWidth + "px";
+    ospin.style.height = imgHeight + "px";
+
+    // Set the size of the ground, based on the radius
+    var ground = document.getElementById('ground');
+    ground.style.width = radius * 3 + "px";
+    ground.style.height = radius * 3 + "px";
+
+    function init(delayTime) {
+      for (var i = 0; i < aEle.length; i++) {
+        aEle[i].style.transform = "rotateY(" + (i * (360 / aEle.length)) + "deg) translateZ(" + radius + "px)";
+        aEle[i].style.transition = "transform 1s";
+        aEle[i].style.transitionDelay = delayTime || (aEle.length - i) / 4 + "s";
+      }
+    }
+
+    function applyTransform(obj) {
+      // Constrain the camera angle between 0 and 180
+      if (tY > 180) tY = 180;
+      if (tY < 0) tY = 0;
+
+      // Apply the angle to the object
+      obj.style.transform = "rotateX(" + (-tY) + "deg) rotateY(" + tX + "deg)";
+    }
+
+    function playSpin(isSpinning) {
+      ospin.style.animationPlayState = isSpinning ? 'running' : 'paused';
+    }
+
+    var sX, sY, nX, nY, desX = 0, desY = 0, tX = 0, tY = 10;
+
+    // Auto-spin the carousel
+    if (autoRotate) {
+      var animationName = (rotateSpeed > 0 ? 'spin' : 'spinRevert');
+      ospin.style.animation = `${animationName} ${Math.abs(rotateSpeed)}s infinite linear`;
+    }
+
+    // Add background music after user interaction
+    if (bgMusicURL) {
+      document.getElementById('music-container').innerHTML += `
+        <audio id="bgMusic" src="hbd.mp3" controls loop></audio>
+      `;
+    }
+
+    // Play music on first user interaction
+    document.body.addEventListener('click', function() {
+      var bgMusic = document.getElementById('bgMusic');
+      if (bgMusic) {
+        bgMusic.play();
+      }
+    }, { once: true });
+
+    // Drag to rotate the carousel
+    document.onpointerdown = function (e) {
+      clearInterval(odrag.timer);
+      e = e || window.event;
+      var sX = e.clientX, sY = e.clientY;
+
+      document.onpointermove = function (e) {
+        e = e || window.event;
+        var nX = e.clientX, nY = e.clientY;
+        desX = nX - sX;
+        desY = nY - sY;
+        tX += desX * 0.1;
+        tY += desY * 0.1;
+        applyTransform(odrag);
+        sX = nX;
+        sY = nY;
+      };
+
+      document.onpointerup = function () {
+        odrag.timer = setInterval(function () {
+          desX *= 0.95;
+          desY *= 0.95;
+          tX += desX * 0.1;
+          tY += desY * 0.1;
+          applyTransform(odrag);
+          playSpin(false);
+          if (Math.abs(desX) < 0.5 && Math.abs(desY) < 0.5) {
+            clearInterval(odrag.timer);
+            playSpin(true);
+          }
+        }, 17);
+        document.onpointermove = document.onpointerup = null;
+      };
+
+      return false;
+    };
+
+    // Zoom in and out of the carousel with mouse scroll
+    document.onmousewheel = function (e) {
+      e = e || window.event;
+      var delta = e.wheelDelta / 20 || -e.detail;
+      radius += delta;
+      init(1);
+    };
+  </script>
+</body>
+</html>
